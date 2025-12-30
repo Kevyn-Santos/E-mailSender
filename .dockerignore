@@ -1,0 +1,5 @@
+./venv
+*.env
+*.sh
+.gitignore
+.dockerignore
