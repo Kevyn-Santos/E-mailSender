@@ -1,3 +1,7 @@
+.venv/
+.venv1/
+Assets/
 script.sh
 .env
-/.venv/
+*.txt
+*.html

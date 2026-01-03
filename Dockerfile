@@ -3,6 +3,10 @@ LABEL authors="kevyn"
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV SMTP_SERVER="smtp.gmail.com"
+ENV PORT_SMTP=465
+ENV EHELO="localhost"
+ENV MSG_PATH=/app/Assets
 
 WORKDIR /app
 
@@ -15,6 +19,4 @@ COPY . .
 RUN adduser -D apiuser
 USER apiuser
 
-EXPOSE 8000/tcp
-
-CMD ["uvicorn", "--host", "0.0.0.0", "--port", "8000", "Main:app"]
+CMD ["uvicorn", "--host", "0.0.0.0", "Main:app"]
