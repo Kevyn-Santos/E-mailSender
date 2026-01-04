@@ -11,44 +11,45 @@ from fastapi import FastAPI, Request, Form
 from dotenv import load_dotenv
 import os
 import re
+from pathlib import Path
+
 # Carregamento de configurações básicas
 app = FastAPI()
 load_dotenv()
+me = os.getenv("SENDER")
+passwd = os.getenv("PASS")
+Servidor = os.getenv("SMTP_SERVER",'smtp.gmail.com')
+Porta = int(os.getenv("PORT_SMTP",465))
+EHelo = os.getenv("EHELO",'localhost')
+Caminho_mensagem: str = os.getenv("MSG_PATH")
 
 #Construção e envio do e-mail
-@app.post("/cad_sucsess")
-def email_sender(user_mail: EmailStr = Form(...),
-                 name_user: str = Form(..., min_length=3, max_length=100)):
+@app.post("/sendMail")
+def email_sender(user_mail: EmailStr = Form(...), name_user: str = Form(..., min_length=3, max_length=100)):
 
-    #carregamento das variaveis de ambiente
-    me = os.getenv("SENDER")
-    passwd = os.getenv("PASS")
-    Servidor = os.getenv("SMTP_SERVER",'smtp.gmail.com')
-    Porta = int(os.getenv("PORT_SMTP",465))
-    EHelo = os.getenv("EHELO",'localhost')
-    Caminho_mensagem = abspath(os.getenv("MSG_PATH", "/Assets"))
     EmailUsuario = user_mail
     NomeUsuario = name_user
 
+    # Validação de nome e caminho
+    NomeUsuario = re.sub(r"[^A-Za-zÀ-ÖØ-öø-ÿ\s]", " ", NomeUsuario).strip()
+    if not Caminho_mensagem:
+        raise EnvironmentError(f'Variavel MSG_PATH não definida')
+
+    caminho_arquivo = Path(Caminho_mensagem)
+    if not caminho_arquivo.is_file():
+        raise FileNotFoundError(f'Arquivo ou diretório {caminho_arquivo} não encontrado')
+
     try:
-    # Validação de nome
-        NomeUsuario = re.sub(r"[^A-Za-zÀ-ÖØ-öø-ÿ\s]", " ", NomeUsuario).strip()
-        if not Caminho_mensagem:
-            raise FileNotFoundError(f'diretorio de mensagens {Caminho_mensagem} não enccontrado')
-
-
         #Construção do e-mail com a classe EmailMessage
-        with open(f'{Caminho_mensagem}.txt') as fp:
+        with open(caminho_arquivo) as fp:
             msgTemp = fp.read()
+            msgdef = msgTemp.format(usuario= NomeUsuario, email= user_mail)
 
-        # msg = EmailMessage()
-        msgdef = msgTemp.format(usuario= NomeUsuario, email= user_mail)
         msg = MIMEMultipart()
         msg['from'] = me
         msg['to'] = user_mail
         msg['subject'] = f'teste de envio'
         msg.attach(MIMEText(msgdef, 'plain', 'utf-8'))
-
     except EmailNotValidError as email_err:
         return email_err
 

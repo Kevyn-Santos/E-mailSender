@@ -6,3 +6,4 @@ Assets/
 *.html
 .gitignore
 .dockerignore
+docker-compose.yml

@@ -5,3 +5,4 @@ script.sh
 .env
 *.txt
 *.html
+docker-compose.yml

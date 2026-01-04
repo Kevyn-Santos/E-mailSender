@@ -19,4 +19,4 @@ COPY . .
 RUN adduser -D apiuser
 USER apiuser
 
-CMD ["uvicorn", "--host", "0.0.0.0", "Main:app"]
+CMD ["uvicorn", "--host", "0.0.0.0", "--port", "8000", "Main:app"]
