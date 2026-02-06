@@ -21,7 +21,7 @@ passwd = os.getenv("PASS")
 Servidor = os.getenv("SMTP_SERVER",'smtp.gmail.com')
 Porta = int(os.getenv("PORT_SMTP",465))
 EHelo = os.getenv("EHELO",'localhost')
-Caminho_mensagem: str = os.getenv("MSG_PATH")
+Caminho_mensagem: str = os.getenv("MSG_PATH") # type: ignore
 
 #Construção e envio do e-mail
 @app.post("/sendMail")
@@ -46,7 +46,7 @@ def email_sender(user_mail: EmailStr = Form(...), name_user: str = Form(..., min
             msgdef = msgTemp.format(usuario= NomeUsuario, email= user_mail)
 
         msg = MIMEMultipart()
-        msg['from'] = me
+        msg['from'] = me # type: ignore
         msg['to'] = user_mail
         msg['subject'] = f'teste de envio'
         msg.attach(MIMEText(msgdef, 'plain', 'utf-8'))
@@ -57,7 +57,7 @@ def email_sender(user_mail: EmailStr = Form(...), name_user: str = Form(..., min
     sender = smtplib.SMTP_SSL(Servidor, port=Porta)
     try:
         sender.ehlo(EHelo)
-        sender.login(me, passwd)
+        sender.login(me, passwd) # type: ignore
         sender.sendmail(msg['from'], msg['to'], msg.as_string())
         return
     # Capturas de erros de conexão, autenticação e informações
