@@ -69,6 +69,7 @@ class base_User(BaseModel):
 
 #TODO Rate Limiter
 #TODO Autenticação
+#TODO Logging
 
 #Construção e envio do e-mail
 @app.post("/sendMail")
