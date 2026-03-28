@@ -6,5 +6,6 @@ script.sh
 *.txt
 *.html
 docker-compose.yml
+/misc
 /__pycache__
 /.idea

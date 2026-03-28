@@ -3,7 +3,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pydantic import EmailStr,BaseModel
 import smtplib
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import api_key
 
@@ -11,6 +11,10 @@ from dotenv import load_dotenv
 import os
 import re
 from pathlib import Path
+
+
+from core.settings import Settings
+from routes.Sender import routers
 
 # Carregamento das variaveis de ambiente
 load_dotenv()
@@ -59,11 +63,11 @@ if not all([Caminho_mensagem, me, passwd]): # validação de váriaveis de ambie
  
 # Criação da classe de recebimento de informações
 class base_User(BaseModel):
-    user_mail: EmailStr
-    name_user: str
+    userMail: EmailStr
+    userName: str
 
     def formatar_nome(self):
-        name_user = re.sub(r"[^A-Za-zÀ-ÖØ-öø-ÿ\s]", " ", self.name_user).strip()
+        name_user = re.sub(r"[^A-Za-zÀ-ÖØ-öø-ÿ\s]", " ", self.userMail).strip()
         return " ".join(name_user.split())  # remove múltiplos espaços
 
 
@@ -74,7 +78,7 @@ class base_User(BaseModel):
 #Construção e envio do e-mail
 @app.post("/sendMail")
 def email_sender(user: base_User):
-    EmailUsuario = user.user_mail
+    EmailUsuario = user.userMail
     NomeUsuario = user.formatar_nome()
     
     # Valida se arquivo de mensagens foi encontrado
@@ -86,7 +90,7 @@ def email_sender(user: base_User):
         #Construção do e-mail com a classe EmailMessage
         with open(caminho_arquivo) as fp:
             msgTemp = fp.read()
-            msgdef = msgTemp.format(usuario=NomeUsuario, email=EmailUsuario) # Sanitização de input de nome
+            msgdef = msgTemp.format(usuario=NomeUsuario, email=EmailUsuario)
 
         msg = MIMEMultipart()
         msg['from'] = me # type: ignore
@@ -99,6 +103,7 @@ def email_sender(user: base_User):
             sender.ehlo(EHelo)
             sender.login(me, passwd) # type: ignore
             sender.send_message(msg) # -> Automaticamente lê tudo do objeto msg
+            
 
     # Capturas de erros de conexão, autenticação e informações
     except smtplib.SMTPConnectError:
