@@ -5,7 +5,7 @@ from typing import Annotated, Any
 from pathlib import Path
 
 
-def cors_config(Urls: Any) -> list[str] | str: # type: ignore
+def cors_config(Urls: Any) -> list[str] | str:
     if isinstance(Urls, str) and Urls.startswith('['):
         return[e.strip() for e in Urls.split(',') if e.strip()]
     elif isinstance(Urls, list | str):
@@ -20,13 +20,13 @@ class Settings(BaseSettings):
         extra='ignore'
     )
 
-    HOSTS: Annotated[list[AnyUrl] | str, BeforeValidator(cors_config)] = []
-    COMMONS_URLS = ["http://localhost","http://localhost:5500","http://127.0.0.1","http://127.0.0.1:5500","http://127.0.0.1:8000"]
+    HOSTS: Annotated[list[AnyUrl] | str, BeforeValidator(cors_config)]
+    COMMONS_URLS:list[str] = ["http://localhost","http://localhost:5500","http://127.0.0.1","http://127.0.0.1:5500","http://127.0.0.1:8000"]
 
     @computed_field
     @property
     def sanatize_cors(self) -> list[str]:
-        return [str(origins).rstrip('/') for origins in self.HOSTS] + [self.COMMONS_URLS] # type: ignore
+        return [str(origins).rstrip(',') for origins in self.HOSTS] + [self.COMMONS_URLS] # type: ignore
     
     
     
@@ -50,6 +50,9 @@ class Settings(BaseSettings):
             return filePath
 
 
-    
+    PROJECT_NAME:str = 'FastAPI E-mail Sender'
+    DESCRIPTION:str = 'A modular FastAPI program to send e-mails with smtp protocol'
 
-# configs = Settings()
+
+    
+settings = Settings() # type: ignore

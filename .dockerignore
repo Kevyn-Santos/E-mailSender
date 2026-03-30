@@ -1,6 +1,5 @@
 .venv/
 .venv1/
-Assets/
 *.sh
 *.html
 .gitignore

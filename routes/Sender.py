@@ -2,15 +2,14 @@ from fastapi import HTTPException, APIRouter
 from smtplib import (SMTPConnectError, SMTPAuthenticationError, SMTP_SSL)
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from core.settings import Settings
+from core.settings import settings
 from models.emailModules import baseUser
 
 
 routers = APIRouter(prefix='/sendMail', tags=['SendEmail'])
-settings = Settings() #type: ignore
 
 @routers.post('/sendMail')
-def sendMail(User: baseUser):
+def email_sender(User: baseUser):
     userMail = User.userMail
     nameUser = User.userName
     filepath = settings.path_validator()

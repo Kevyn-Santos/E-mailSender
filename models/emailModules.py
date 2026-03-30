@@ -1,8 +1,5 @@
 from pydantic import (BaseModel, EmailStr)
-from core.settings import Settings
 import re
-
-settings = Settings() #type: ignore
 
 class baseUser(BaseModel):
     userMail: EmailStr
