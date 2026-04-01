@@ -5,28 +5,31 @@ from typing import Annotated, Any
 from pathlib import Path
 
 
-def cors_config(Urls: Any) -> list[str] | str:
-    if isinstance(Urls, str) and Urls.startswith('['):
-        return[e.strip() for e in Urls.split(',') if e.strip()]
-    elif isinstance(Urls, list | str):
-        return Urls
+# limpa os IP's que virão de CORS
+def cors_config(Urls: Any) -> list[str]: #type: ignore
+    if isinstance(Urls, list):
+        return[str(u).strip() for u in Urls] # Se for lista, retira os espaços
+    
+    if isinstance(Urls, str):
+        clean = Urls.strip().strip('[]')
+        return[u.strip() for u in clean.split(',') if u.strip()] # Se forem strings, retira os colchetes e espaços, depois separa por virgula
     else: 
         ValueError(Urls)
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file= '../Assets/.env',
+        env_file= '../.env',
         env_ignore_empty=False,
         extra='ignore'
     )
 
-    HOSTS: Annotated[list[AnyUrl] | str, BeforeValidator(cors_config)]
+    HOSTS: Annotated[list[AnyUrl] | str, BeforeValidator(cors_config)] = []
     COMMONS_URLS:list[str] = ["http://localhost","http://localhost:5500","http://127.0.0.1","http://127.0.0.1:5500","http://127.0.0.1:8000"]
 
     @computed_field
     @property
     def sanatize_cors(self) -> list[str]:
-        return [str(origins).rstrip(',') for origins in self.HOSTS] + [self.COMMONS_URLS] # type: ignore
+        return [str(origins) for origins in self.HOSTS] + self.COMMONS_URLS # type: ignore
     
     
     

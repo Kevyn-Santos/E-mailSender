@@ -1,10 +1,10 @@
 # importação de bibliotecas
 
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from core.settings import settings, cors_config
-from routes.Sender import routers
+from core.settings import settings
+from routes import Sender
 
 # Carregamento de configurações básicas
 app = FastAPI(
@@ -15,20 +15,10 @@ app = FastAPI(
 if settings.sanatize_cors:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=settings.sanatize_cors,
         allow_credentials=False,
         allow_methods=["*"],
         allow_headers=["*"],
     )
 
-app.include_router(routers)
-
-print(f"""URL's tratadas: {settings.sanatize_cors}
-URL's Comuns: {settings.COMMONS_URLS}
-URL's Externas: {settings.HOSTS}
-cors_config""" )
-
-
-# if not all([Caminho_mensagem, me, passwd]): # validação de váriaveis de ambiente preenchidas
-#        raise RuntimeError('Variaveis de ambiente SENDER, PASS ou MSG_PATH não definidas')
- 
+app.include_router(Sender.routers)
