@@ -40,6 +40,10 @@ class Settings(BaseSettings):
     EHELO: str | str ='localhost'
     MSG_PATH: Path
     SUBJECT: str | str=""
+
+    QTD_EMAILS: int = 10
+    TMP_EMAILS: int = 60
+    TMP_BLOQ: int = 30
     
     def path_validator(self):
 
