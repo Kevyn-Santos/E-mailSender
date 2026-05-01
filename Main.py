@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 
 from core.settings import settings
-from core.security import limiter, blocked_ips, rate_limit_exceeded_handler
+from core.security import Rate_limiter, blocked_ips
 from routes import Sender
 
 # Carregamento de configurações básicas
@@ -17,8 +17,8 @@ app = FastAPI(
 )
 
 # Registra o limiter e o handler de rate limit
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)  # type: ignore
+app.state.limiter = Rate_limiter.limiter
+app.add_exception_handler(RateLimitExceeded, Rate_limiter.rate_limit_exceeded_handler)  # type: ignore
 
 if settings.sanatize_cors:
     app.add_middleware(
