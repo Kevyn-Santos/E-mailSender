@@ -8,7 +8,7 @@ from slowapi.errors import RateLimitExceeded
 
 from core.settings import settings
 from core.security import Rate_limiter, blocked_ips
-from routes import Sender
+from routes import Health, Sender
 
 # Carregamento de configurações básicas
 app = FastAPI(
@@ -51,3 +51,4 @@ async def block_banned_ips(request: Request, call_next):
     return await call_next(request)
 
 app.include_router(Sender.routers)
+app.include_router(Health.router)

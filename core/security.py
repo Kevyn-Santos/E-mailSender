@@ -5,9 +5,16 @@ from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 from core.settings import settings
+import secrets
 
 # Dicionário compartilhado: IP -> timestamp de expiração do bloqueio
 blocked_ips: dict[str, float] = {}
+
+# Criar DbLocal
+# Class APIKey
+    ## Função criar uma APIKey
+    ## Registrar ela num banco local
+    ## Validar APIKey
 
 
 class Ratelimiter:

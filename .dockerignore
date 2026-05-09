@@ -6,3 +6,5 @@
 .dockerignore
 docker-compose.yml
 *.md
+.vscode/
+*.git
