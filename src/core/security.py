@@ -4,8 +4,8 @@ from fastapi.responses import JSONResponse
 from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
-from core.settings import settings
-import secrets
+from src.core.settings import settings
+import secrets, hashlib
 
 # Dicionário compartilhado: IP -> timestamp de expiração do bloqueio
 blocked_ips: dict[str, float] = {}
@@ -16,6 +16,13 @@ blocked_ips: dict[str, float] = {}
     ## Registrar ela num banco local
     ## Validar APIKey
 
+class ApiKey:
+    def create_ApiKey(self) -> tuple[str, str]:
+        rawKey = secrets.token_urlsafe()
+        hashed = hashlib.sha256(rawKey.encode()).hexdigest()
+        return (rawKey, hashed)
+
+    
 
 class Ratelimiter:
 

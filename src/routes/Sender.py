@@ -1,7 +1,7 @@
 from fastapi import APIRouter, BackgroundTasks, Request
-from core.security import Rate_limiter
-from models.emailModules import baseUser
-from services.sendMail import sendMail
+from src.core.security import Rate_limiter
+from src.models.emailModules import baseUser
+from src.services.sendMail import sendMail
 
 routers = APIRouter(tags=['SendEmail'])
 
