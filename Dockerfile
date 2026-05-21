@@ -35,6 +35,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Código copiado com ownership do usuário não-root
 COPY --chown=apiuser:apiuser . .
 
+# Diretório de dados com permissão de escrita para o apiuser
+RUN mkdir /app/data && chown apiuser:apiuser /app/data
+
 USER apiuser
 
 EXPOSE 8000

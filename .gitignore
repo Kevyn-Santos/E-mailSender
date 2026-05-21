@@ -8,5 +8,6 @@ docker-compose.yml
 /.idea
 *.md
 .env
+*.db
 .vscode/
 *.git
