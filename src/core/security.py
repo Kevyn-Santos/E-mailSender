@@ -96,8 +96,7 @@ Rate_limiter = Ratelimiter()
 api_Key = ApiKey(path_db=str(settings.DB_PATH))
 
 
-# Verifica se o front informou uma chave no campo 'X-API-Key'; retorna erro se o Header estiver ausente;
-# _header_key = APIKeyHeader(name="X-API-Key", auto_error=True)
+# Verifica se a chave informada em settings.API_KEY esta no banco, e retorna 401 se não estiver. Implicitamente, retorna erro se a várivael de ambiente não estiver preenchida.
 async def verify_header_key(key: str = settings.API_KEY) -> str: # Utiliza o módulo 'Security' para verificar a implantação da segurança utilizando os Escopos OAuth2.
     if not api_Key.verify_key(key):
         raise HTTPException(status_code=401, detail="Chave de API inválida ou inativa")
