@@ -1,6 +1,5 @@
 import time
-from fastapi import Request, Security, HTTPException
-from fastapi.security import APIKeyHeader
+from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
 
 from slowapi import Limiter
@@ -12,16 +11,6 @@ import secrets, hashlib, sqlite3
 
 # Dicionário compartilhado: IP -> timestamp de expiração do bloqueio
 blocked_ips: dict[str, float] = {}
-
-# Criar DbLocal
-# Class APIKey
-    ## Função criar uma APIKey
-    ## Registrar ela num banco local
-    ## Validar APIKey
-
-# Criar um script para gerar as keys a partir do código
-# Incluir retornos HTTP
-# Definir onde no código as funções serão chamadas e executadas
 
 class ApiKey:
     """Essa classe gerencia a criação, armazenamento e verificação das chaves API

@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     def sanatize_cors(self) -> list[str]:
         return [str(origins) for origins in self.HOSTS] + self.COMMONS_URLS # type: ignore
     
+    
     DB_PATH: Path = Path("/app/data/key.db")
     API_KEY: str
     

@@ -11,3 +11,6 @@ docker-compose.yml
 *.db
 .vscode/
 *.git
+keys.txt
+temp.py
+.env
