@@ -14,3 +14,8 @@ docker-compose.yml
 keys.txt
 temp.py
 .env
+.pytest_cache
+*__pycache__
+.claude
+.dockerignore
+.misc
