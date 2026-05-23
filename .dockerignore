@@ -5,6 +5,8 @@
 .gitignore
 .dockerignore
 docker-compose.yml
+*.txt
+temp.py
 *.md
 .vscode/
 *.git
