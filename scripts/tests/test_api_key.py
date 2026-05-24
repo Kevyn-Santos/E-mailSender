@@ -21,11 +21,11 @@ def test_criar_chave_retorna_par(chaves):
 def test_armazenar_e_verificar(chaves):
     chave_bruta, hash_ = chaves.create_ApiKey()
     chaves.storeKey(hash_)
-    assert chaves.verify_value(chave_bruta) is True
+    assert chaves.verify_key(chave_bruta) is True
 
 def test_chave_invalida(chaves):
-    assert chaves.verify_value("qualquer-coisa") is False
+    assert chaves.verify_key("qualquer-coisa") is False
 
 def test_chave_nao_armazenada(chaves):
     chave_bruta, _ = chaves.create_ApiKey()
-    assert chaves.verify_value(chave_bruta) is False  # gerada mas não salva
+    assert chaves.verify_key(chave_bruta) is False  # gerada mas não salva

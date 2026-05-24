@@ -11,10 +11,12 @@ temp.py
 *.git
 .Scripts/
 *__pycache__
+src/core/__pycache__
 .git
 .gitignore
 .github
 .claude
 .pytest_cache
-.Assets
-.misc
+.Assets/HTML
+misc
+Scripts
