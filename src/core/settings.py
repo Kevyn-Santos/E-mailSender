@@ -46,7 +46,15 @@ class Settings(BaseSettings):
     QTD_EMAILS: int = 10
     TMP_EMAILS: int = 60
     TMP_BLOQ: int = 30
-    
+
+    # --- JWT / Auth ---
+    JWT_SECRET: str
+    JWT_ALGORITHM: str = "HS256"
+    JWT_EXPIRE_MINUTES: int = 30
+
+    API_USER: str
+    API_PASS: str
+
     def path_validator(self):
 
         if self.MSG_PATH == None:
