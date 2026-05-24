@@ -32,15 +32,29 @@ class Settings(BaseSettings):
         return [str(origins) for origins in self.HOSTS] + self.COMMONS_URLS # type: ignore
     
     
+    DB_PATH: Path = Path("/app/data/key.db")
+    API_KEY: str
     
     SENDER: EmailStr | None = None
     PASS: str | None = None
     SMTP_SERVER: str | str='smtp.gmail.com'
     PORT_SMTP: int = 465
     EHELO: str | str ='localhost'
-    MSG_PATH: Path
+    MSG_PATH: Path = Path("/home/kevyn/PycharmProjects/Email_Sender/Assets/mensagem.txt")
     SUBJECT: str | str=""
-    
+
+    QTD_EMAILS: int = 10
+    TMP_EMAILS: int = 60
+    TMP_BLOQ: int = 30
+
+    # --- JWT / Auth ---
+    JWT_SECRET: str
+    JWT_ALGORITHM: str = "HS256"
+    JWT_EXPIRE_MINUTES: int = 30
+
+    API_USER: str
+    API_PASS: str
+
     def path_validator(self):
 
         if self.MSG_PATH == None:

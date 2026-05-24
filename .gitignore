@@ -8,3 +8,14 @@ docker-compose.yml
 /.idea
 *.md
 .env
+*.db
+.vscode/
+*.git
+keys.txt
+temp.py
+.env
+.pytest_cache
+*__pycache__
+.claude
+.dockerignore
+.misc

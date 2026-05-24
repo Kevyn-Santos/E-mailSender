@@ -2,7 +2,7 @@ from fastapi import (HTTPException)
 from smtplib import (SMTPConnectError, SMTPAuthenticationError, SMTP_SSL)
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from core.settings import settings
+from src.core.settings import settings
 
 def buildMail(to: str, name: str, path) -> MIMEMultipart:
     with open(path) as fp:
