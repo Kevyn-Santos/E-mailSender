@@ -1,9 +1,8 @@
 .venv/
 .venv1/
-Assets/
-*.env
 *.sh
 *.html
 .gitignore
 .dockerignore
 docker-compose.yml
+*.md

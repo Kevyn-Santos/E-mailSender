@@ -1,8 +1,10 @@
 .venv/
 .venv1/
-Assets/
 script.sh
-.env
-*.txt
-*.html
+Assets/
 docker-compose.yml
+/misc
+/__pycache__
+/.idea
+*.md
+.env
