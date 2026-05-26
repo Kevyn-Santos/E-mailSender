@@ -1,21 +1,27 @@
-.venv/
-.venv1/
-script.sh
-Assets/
-docker-compose.yml
-/misc
-/__pycache__
-/.idea
-*.md
-.env
-*.db
-.vscode/
-*.git
-keys.txt
-temp.py
-.env
-.pytest_cache
-*__pycache__
+# Directories
 .claude
 .dockerignore
+.env
+.idea
 .misc
+.pytest_cache
+.venv/
+.venv1/
+.vscode/
+Assets/
+docker-compose.yml
+keys.txt
+misc
+temp.py
+
+# Wildcards
+*.db
+*.git
+*.md
+*__pycache__
+
+# Scripts
+script.sh
+
+# Environment
+.env

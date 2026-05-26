@@ -1,22 +1,28 @@
+# Directories
+.Assets/HTML
+.claude
+.git
+.github
+.gitignore
+.pytest_cache
+.Scripts/
 .venv/
 .venv1/
-*.sh
-*.html
-.gitignore
+.vscode/
 docker-compose.yml
 keys.txt
-temp.py
-*.md
-.vscode/
-*.git
-.Scripts/
-*__pycache__
-src/core/__pycache__
-.git
-.gitignore
-.github
-.claude
-.pytest_cache
-.Assets/HTML
 misc
+Sample.env
 Scripts
+src/core/__pycache__
+temp.py
+
+# Wildcards
+*.git
+*.html
+*.md
+*.sh
+*__pycache__
+
+# Environment
+.env
