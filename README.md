@@ -117,7 +117,6 @@ Requisição HTTP POST /sendMail
 | `SMTP_SERVER` | `smtp.gmail.com`     | Hostname do servidor SMTP                                           |
 | `PORT_SMTP`   | `465`                | Porta SMTP com SSL                                                  |
 | `EHELO`       | `localhost`          | Hostname enviado no handshake EHELO com o servidor SMTP             |
-| `DB_PATH`     | `/app/data/key.db`   | Caminho para o banco de dados SQLite das chaves de API              |
 | `QTD_EMAILS`  | `10`                 | Número máximo de requisições permitidas por janela de tempo         |
 | `TMP_EMAILS`  | `60`                 | Duração da janela de rate limiting em segundos                      |
 | `TMP_BLOQ`    | `30`                 | Tempo de bloqueio do IP após exceder o limite (segundos)            |
