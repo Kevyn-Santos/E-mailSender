@@ -242,7 +242,7 @@ uvicorn Main:app --reload --host 0.0.0.0 --port 8000
 **Construir a imagem:**
 
 ```bash
-docker build -t email-sender:v1 .
+docker build -t kevynsantos/email_api:V4 .
 ```
 
 **Executar um contêiner:**
@@ -258,8 +258,9 @@ docker run -d \
   -e SUBJECT="Cadastro realizado com sucesso" \
   -e API_KEY=sua_chave_de_api \
   -v ./Assets:/app/Assets \
+  -v ./caminho/para/db:/app/data/key.db \
   -p 8000:8000 \
-  email-sender:v1
+  kevynsantos/email_api:V4
 ```
 
 ---
@@ -274,7 +275,7 @@ version: '3.8'
 services:
   cadastro:
     build: .
-    image: email-sender:v1
+    image: kevynsantos/email_api:V4
     env_file:
       - .env                               # Contém SENDER, PASS e API_KEY
     environment:
@@ -282,13 +283,14 @@ services:
       SUBJECT: "Cadastro realizado com sucesso"
     volumes:
       - ./Assets:/app/Assets
+      - ./caminho/para/db:/app/data/key.db
     ports:
       - "8000:8000"
     restart: unless-stopped
 
   promo:
     build: .
-    image: email-sender:v1
+    image: kevynsantos/email_api:V4
     env_file:
       - .env
     environment:
@@ -296,13 +298,14 @@ services:
       SUBJECT: ${SUBJECT_PROMO}
     volumes:
       - ./Assets:/app/Assets
+      - ./caminho/para/db:/app/data/key.db
     ports:
       - "8001:8000"
     restart: unless-stopped
 
   reset:
     build: .
-    image: email-sender:v1
+    image: kevynsantos/email_api:V4
     environment:
       SENDER: remetente@exemplo.com
       PASS: senha_de_aplicativo
@@ -313,6 +316,7 @@ services:
       API_KEY: sua_chave_de_api
     volumes:
       - ./Assets:/app/Assets
+      - ./caminho/para/db:/app/data/key.db
     ports:
       - "8002:8000"
     restart: unless-stopped
