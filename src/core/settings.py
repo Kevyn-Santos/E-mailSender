@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     
     
     DB_PATH: Path = Path("/app/data/key.db")
-    API_KEY: str
+    API_KEY: str = ""
     
     SENDER: EmailStr | None = None
     PASS: str | None = None

@@ -25,3 +25,4 @@ script.sh
 
 # Environment
 .env
+src/core/key.db
