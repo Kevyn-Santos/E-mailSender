@@ -53,8 +53,8 @@ Email_Sender/
 │   └── mensagem.txt         # Template de e-mail
 │
 └── scripts/
-    ├── tests/               # Testes unitários e funcionais (pytest)
-    └── non_functional_tests/ # Scripts de teste de carga e spam (Bash)
+    ├── create_key.py        # Utilitário para gerar e registrar chaves de API no banco
+    └── tests/               # Testes unitários e funcionais (pytest)
 ```
 
 ---
@@ -105,15 +105,15 @@ Requisição HTTP POST /sendMail
 |------------|------------------------------------------------------------------------------------------------------------|
 | `SENDER`   | Endereço de e-mail remetente                                                                               |
 | `PASS`     | Senha de aplicativo do provedor de e-mail (não a senha da conta)                                           |
-| `MSG_PATH` | Caminho completo para o arquivo de template dentro do contêiner                                            |
+| `MSG_PATH` | Caminho completo para o arquivo de template dentro do contêiner (ex: `/app/Assets/mensagem.txt`)           |
 | `SUBJECT`  | Assunto do e-mail                                                                                          |
-| `HOSTS`    | Origens CORS adicionais separadas por vírgula. Variantes de localhost são sempre permitidas por padrão.    |
 | `API_KEY`  | Chave de API para autenticação do serviço. Deve corresponder a uma chave previamente gerada e armazenada no banco de dados. |
 
 ### Opcionais
 
 | Variável      | Padrão               | Descrição                                                           |
 |---------------|----------------------|---------------------------------------------------------------------|
+| `HOSTS`       | `http://localhost`   | Origens CORS adicionais separadas por vírgula. Necessário se o frontend estiver hospedado em um domínio externo. |
 | `SMTP_SERVER` | `smtp.gmail.com`     | Hostname do servidor SMTP                                           |
 | `PORT_SMTP`   | `465`                | Porta SMTP com SSL                                                  |
 | `EHELO`       | `localhost`          | Hostname enviado no handshake EHELO com o servidor SMTP             |
@@ -129,7 +129,7 @@ Requisição HTTP POST /sendMail
 
 O endpoint `/sendMail` exige uma chave de API válida configurada na variável de ambiente `API_KEY`. A chave é verificada contra um banco SQLite (`key.db`) gerenciado pela classe `ApiKey` em `src/core/security.py`.
 
-As chaves são armazenadas em formato SHA-256. Para gerar e registrar uma nova chave, utilize os utilitários disponíveis em `scripts/`.
+As chaves são armazenadas em formato SHA-256 e gerenciadas através do script `scripts/create_key.py`.
 
 ### Rate Limiting
 
@@ -197,12 +197,17 @@ Envia um e-mail ao destinatário informado utilizando o template configurado no 
 
 **Resposta de sucesso — HTTP 200:**
 
+```json
+{
+  "message": "E-mail enviado com sucesso"
+}
+```
+
 **Resposta de erro — HTTP 401:** Chave de API inválida ou ausente.
 
 **Resposta de erro — HTTP 429:** Limite de requisições excedido ou IP bloqueado.
 
-**Resposta de erro — HTTP 500:**
-
+**Resposta de erro — HTTP 500:** Caminho do template inválido ou erro no envio SMTP.
 
 > O envio é processado em background (via `BackgroundTasks` do FastAPI), portanto a resposta HTTP é retornada imediatamente ao cliente.
 
@@ -257,7 +262,7 @@ docker run -d \
   -e SUBJECT="Cadastro realizado com sucesso" \
   -e API_KEY=sua_chave_de_api \
   -v ./Assets:/app/Assets \
-  -v ./caminho/para/db:/app/data/key.db \
+  -v api_keys:/app/data \
   -p 8000:8000 \
   kevynsantos/email_api:V4
 ```
@@ -266,7 +271,7 @@ docker run -d \
 
 ### Docker Compose
 
-A configuração recomendada para produção executa múltiplos contêineres a partir da mesma imagem, cada um com seu próprio template e assunto:
+A configuração recomendada para produção executa múltiplos contêineres a partir da mesma imagem, cada um com seu próprio template, assunto e banco de chaves isolado:
 
 ```yaml
 version: '3.8'
@@ -275,14 +280,16 @@ services:
   cadastro:
     build: .
     image: kevynsantos/email_api:V4
+    container_name: email-cadastro
     env_file:
-      - .env                               # Contém SENDER, PASS e API_KEY
+      - .env
     environment:
       MSG_PATH: /app/Assets/mensagem.txt
-      SUBJECT: "Cadastro realizado com sucesso"
+      SUBJECT: ${SUBJECT_CADASTRO}
+      API_KEY: ${API_KEY_CADASTRO}
     volumes:
       - ./Assets:/app/Assets
-      - ./caminho/para/db:/app/data/key.db
+      - api_keys_cadastro:/app/data
     ports:
       - "8000:8000"
     restart: unless-stopped
@@ -290,14 +297,16 @@ services:
   promo:
     build: .
     image: kevynsantos/email_api:V4
+    container_name: email-promo
     env_file:
       - .env
     environment:
-      MSG_PATH: ${MSG_PATH_PROMO:-/app/Assets/mensagem.txt} # Personalizavel com Interpolação
+      MSG_PATH: ${MSG_PATH_PROMO:-/app/Assets/mensagem.txt}
       SUBJECT: ${SUBJECT_PROMO}
+      API_KEY: ${API_KEY_PROMO}
     volumes:
       - ./Assets:/app/Assets
-      - ./caminho/para/db:/app/data/key.db
+      - api_keys_promo:/app/data
     ports:
       - "8001:8000"
     restart: unless-stopped
@@ -305,42 +314,121 @@ services:
   reset:
     build: .
     image: kevynsantos/email_api:V4
+    container_name: email-reset
+    env_file:
+      - .env
     environment:
-      SENDER: remetente@exemplo.com
-      PASS: senha_de_aplicativo
-      SMTP_SERVER: smtp.gmail.com
-      PORT_SMTP: 465
-      MSG_PATH: /app/Assets/Reset.txt
-      SUBJECT: "Redefinicao de senha"
-      API_KEY: sua_chave_de_api
+      MSG_PATH: ${MSG_PATH_RESET:-/app/Assets/Reset.txt}
+      SUBJECT: ${SUBJECT_RESET}
+      API_KEY: ${API_KEY_RESET}
     volumes:
       - ./Assets:/app/Assets
-      - ./caminho/para/db:/app/data/key.db
+      - api_keys_reset:/app/data
     ports:
       - "8002:8000"
     restart: unless-stopped
-```
 
-**Iniciar todos os serviços:**
-
-```bash
-docker compose up --build
-```
-
-**Iniciar um serviço especifico:**
-
-```bash
-docker compose up cadastro
-```
-
-**Encerrar todos os serviços:**
-
-```bash
-docker compose down
+volumes:
+  api_keys_cadastro:
+  api_keys_promo:
+  api_keys_reset:
 ```
 
 ---
 
-## Licenca
+## Configuração Inicial — Geração de Chaves de API
 
-Este projeto esta disponivel sob a licenca MIT.
+As chaves de API são armazenadas em um banco SQLite dentro de cada volume Docker. Na primeira execução, é necessário gerar e registrar as chaves:
+
+### Passo 1: Subir os contêineres
+
+```bash
+docker-compose up -d
+```
+
+Os volumes nomeados são criados automaticamente pelo Docker.
+
+### Passo 2: Gerar chaves para cada serviço
+
+Para cada serviço, execute o script de geração de chaves dentro do contêiner:
+
+```bash
+# Serviço Cadastro
+docker exec -it email-cadastro python scripts/create_key.py
+
+# Serviço Promo
+docker exec -it email-promo python scripts/create_key.py
+
+# Serviço Reset
+docker exec -it email-reset python scripts/create_key.py
+```
+
+Cada execução imprime 11 chaves no formato:
+
+```
+0: Chave gerada: AbCd1234_Ef5Gh67ijKlMnOpQrStUvWxYz
+Guarde esta chave — o hash é armazenado, a chave original não pode ser recuperada.
+
+1: Chave gerada: XyZ9876_wVuTsRqPonMlKjIhGfEdCbA...
+...
+```
+
+### Passo 3: Configurar as variáveis de ambiente
+
+Copie uma das chaves geradas e adicione ao arquivo `.env`:
+
+```env
+API_KEY_CADASTRO=AbCd1234_Ef5Gh67ijKlMnOpQrStUvWxYz
+API_KEY_PROMO=XyZ9876_wVuTsRqPonMlKjIhGfEdCbA
+API_KEY_RESET=AaBbCcDd1234_EeFfGgHhIiJjKkLlMm
+```
+
+### Passo 4: Reiniciar os contêineres
+
+```bash
+docker-compose restart
+```
+
+Os serviços agora validarão as chaves contra o banco de dados e estarão prontos para aceitar requisições.
+
+### Passo 5: Verificar status
+
+```bash
+curl http://localhost:8000/health
+curl http://localhost:8001/health
+curl http://localhost:8002/health
+```
+
+---
+
+### Operações com Volumes
+
+**Iniciar todos os serviços:**
+
+```bash
+docker-compose up -d
+```
+
+**Iniciar um serviço específico:**
+
+```bash
+docker-compose up cadastro
+```
+
+**Encerrar todos os serviços (mantendo volumes):**
+
+```bash
+docker-compose down
+```
+
+**Encerrar todos os serviços e remover volumes (apaga chaves armazenadas):**
+
+```bash
+docker-compose down -v
+```
+
+---
+
+## Licença
+
+Este projeto está disponível sob a licença MIT.
