@@ -26,3 +26,4 @@ temp.py
 
 # Environment
 .env
+key.db

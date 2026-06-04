@@ -18,7 +18,7 @@ class ApiKey:
     para aquela operação especifica será criada."""
     
     # inicializa o caminho do banco e a função de criação do banco a cada nova instancia da classe
-    def __init__(self, path_db: str = "key.db"): 
+    def __init__(self, path_db: str = str(settings.DB_PATH)): 
         self._path_db = path_db 
         self.createDB()
 
