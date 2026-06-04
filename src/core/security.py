@@ -48,7 +48,7 @@ class ApiKey:
 
         with sqlite3.connect(self._path_db) as conn: # Conecta com o banco
             result = conn.execute(
-                "SELECT 1 FROM ApiKey WHERE key= ? LIMIT 1", (hashedKey,)
+                "SELECT 1 FROM ApiKey WHERE key= ? AND status=1 LIMIT 1", (hashedKey,)
                 ).fetchone() # Pede para o banco verificar e retornar 'True' na primeira instância encontrada da chave
             return result is not None # Retorna o valor da query
 

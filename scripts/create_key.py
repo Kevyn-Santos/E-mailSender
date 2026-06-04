@@ -1,7 +1,7 @@
 import os, secrets, hashlib, sqlite3
 
 # Localmente usa ./key.db; no Docker usa DB_PATH já definido no ambiente do container
-caminho_db = os.environ.get("DB_PATH", "./key.db")
+caminho_db = os.environ.get("DB_PATH", "src/core/key.db")
 
 def criar_banco() -> None:
     with sqlite3.connect(caminho_db) as conn:
@@ -22,8 +22,8 @@ def armazenar_chave(hash_key: str) -> None:
 
 if __name__ == "__main__":
     criar_banco()
-    for _ in range(11):
+    for i in range(11):
         chave_bruta, hash_ = criar_chave()
         armazenar_chave(hash_)
-        print(f"\nChave gerada: {chave_bruta}")
+        print(f"\n{i}: Chave gerada: {chave_bruta}")
         print("Guarde esta chave — o hash é armazenado, a chave original não pode ser recuperada.\n")
