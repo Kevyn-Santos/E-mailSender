@@ -5,7 +5,8 @@
 # Criar a Docker image
 # Subir a Docker image no Dockerhub(com Tagging)
 
-name: Integration and Deploy
+name: Integration and testing
+run-name: Integration and testing
 
 on:
   push:
@@ -26,7 +27,9 @@ jobs:
           python-version: 3.12
 
       - run: pip install ruff
-      - run: ruff check .
+      - run: |
+          ruff check .
+          ruff --fix check .
       - run: ruff format --check .
 
   tests:
