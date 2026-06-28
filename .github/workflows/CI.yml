@@ -1,0 +1,39 @@
+# Checkout
+# Instalar Python 3.12
+# Instalar Dependencias pip
+# Realizar testes(pytest: scripts/tests/) e compilar atifact
+# Criar a Docker image
+# Subir a Docker image no Dockerhub(com Tagging)
+
+name: Integration and Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  
+  build:
+    runs-on: ubuntu-latest
+    name: Build de venv e Dependencias
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+      
+      - name: Instalar Dependencias
+        run: |
+          pip install --no-cache-dir --upgrade pip
+          pip install --no-cache-dir -r requirements.txt 
+      
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ hashFiles('requirements.txt') }}
+      
+      
