@@ -4,7 +4,6 @@
 .env
 .idea
 .misc
-.pytest_cache
 .venv/
 .venv1/
 .vscode/
@@ -18,7 +17,12 @@ temp.py
 *.db
 *.git
 *.md
-*__pycache__
+
+# Cache Python / pytest
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
 
 # Scripts
 script.sh

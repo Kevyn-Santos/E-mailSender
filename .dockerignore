@@ -4,7 +4,6 @@
 .git
 .github
 .gitignore
-.pytest_cache
 .Scripts/
 .venv/
 .venv1/
@@ -14,7 +13,6 @@ keys.txt
 misc
 Sample.env
 Scripts
-src/core/__pycache__
 temp.py
 
 # Wildcards
@@ -22,7 +20,12 @@ temp.py
 *.html
 *.md
 *.sh
-*__pycache__
+
+# Cache Python / pytest
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
 
 # Environment
 .env
