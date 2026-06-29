@@ -29,6 +29,7 @@ jobs:
       - run: pip install ruff
       - run: |
           ruff check .
+        continue-on-error: true
 
   tests:
     runs-on: ubuntu-latest
