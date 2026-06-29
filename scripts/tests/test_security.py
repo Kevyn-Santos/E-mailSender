@@ -54,6 +54,7 @@ class TestApiKeyArmazenamento:
 class TestApiKeyBancoDados:
     def test_tabela_criada_na_inicializacao(self, instancia_api_key):
         import sqlite3
+
         with sqlite3.connect(instancia_api_key._path_db) as conn:
             tabelas = conn.execute(
                 "SELECT name FROM sqlite_master WHERE type='table' AND name='ApiKey'"
@@ -75,6 +76,7 @@ class TestVerifyHeaderKey:
         mock_api_key = self._criar_mock_api_key(retorno_verify=True)
         with patch("src.core.security.api_Key", mock_api_key):
             from src.core.security import verify_header_key
+
             resultado = asyncio.run(verify_header_key(key="chave-valida"))
         assert resultado == "chave-valida"
 
@@ -82,6 +84,7 @@ class TestVerifyHeaderKey:
         mock_api_key = self._criar_mock_api_key(retorno_verify=False)
         with patch("src.core.security.api_Key", mock_api_key):
             from src.core.security import verify_header_key
+
             with pytest.raises(HTTPException) as exc_info:
                 asyncio.run(verify_header_key(key="chave-invalida"))
         assert exc_info.value.status_code == 401

@@ -12,10 +12,7 @@ from src.routes import Sender
 from src.routes import Health
 
 # Carregamento de configurações básicas
-app = FastAPI(
-    title= settings.PROJECT_NAME,
-    description= settings.DESCRIPTION
-)
+app = FastAPI(title=settings.PROJECT_NAME, description=settings.DESCRIPTION)
 
 # Registra o limiter e o handler de rate limit
 app.state.limiter = Rate_limiter.limiter
@@ -30,6 +27,7 @@ if settings.sanatize_cors:
         allow_headers=["*"],
     )
 
+
 # Middleware de bloqueio de IP — adicionado por último = executado primeiro
 @app.middleware("http")
 async def block_banned_ips(request: Request, call_next):
@@ -42,7 +40,7 @@ async def block_banned_ips(request: Request, call_next):
                 return JSONResponse(
                     content={
                         "error": "IP bloqueado",
-                        "detail": f"Tente novamente em {remaining} segundos."
+                        "detail": f"Tente novamente em {remaining} segundos.",
                     },
                     status_code=429,
                 )
@@ -50,6 +48,7 @@ async def block_banned_ips(request: Request, call_next):
                 del blocked_ips[client_ip]
 
     return await call_next(request)
+
 
 app.include_router(Sender.routers)
 app.include_router(Health.router)

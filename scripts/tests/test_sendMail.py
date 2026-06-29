@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import patch, MagicMock
 from smtplib import SMTPConnectError, SMTPAuthenticationError
 from email.mime.multipart import MIMEMultipart
 from fastapi import HTTPException
@@ -32,7 +32,9 @@ class TestBuildMail:
     def test_retorna_mime_multipart(self, arquivo_template):
         from src.services.sendMail import buildMail
 
-        with patch("src.services.sendMail.settings", _criar_mock_settings(arquivo_template)):
+        with patch(
+            "src.services.sendMail.settings", _criar_mock_settings(arquivo_template)
+        ):
             mensagem = buildMail(
                 to="destino@teste.com", name="Usuário Teste", path=arquivo_template
             )
@@ -41,7 +43,9 @@ class TestBuildMail:
     def test_cabecalho_from_correto(self, arquivo_template):
         from src.services.sendMail import buildMail
 
-        with patch("src.services.sendMail.settings", _criar_mock_settings(arquivo_template)):
+        with patch(
+            "src.services.sendMail.settings", _criar_mock_settings(arquivo_template)
+        ):
             mensagem = buildMail(
                 to="destino@teste.com", name="Usuário Teste", path=arquivo_template
             )
@@ -50,7 +54,9 @@ class TestBuildMail:
     def test_cabecalho_to_correto(self, arquivo_template):
         from src.services.sendMail import buildMail
 
-        with patch("src.services.sendMail.settings", _criar_mock_settings(arquivo_template)):
+        with patch(
+            "src.services.sendMail.settings", _criar_mock_settings(arquivo_template)
+        ):
             mensagem = buildMail(
                 to="destino@teste.com", name="Usuário Teste", path=arquivo_template
             )
@@ -59,7 +65,9 @@ class TestBuildMail:
     def test_cabecalho_subject_correto(self, arquivo_template):
         from src.services.sendMail import buildMail
 
-        with patch("src.services.sendMail.settings", _criar_mock_settings(arquivo_template)):
+        with patch(
+            "src.services.sendMail.settings", _criar_mock_settings(arquivo_template)
+        ):
             mensagem = buildMail(
                 to="destino@teste.com", name="Usuário Teste", path=arquivo_template
             )
@@ -68,7 +76,9 @@ class TestBuildMail:
     def test_corpo_substitui_placeholders(self, arquivo_template):
         from src.services.sendMail import buildMail
 
-        with patch("src.services.sendMail.settings", _criar_mock_settings(arquivo_template)):
+        with patch(
+            "src.services.sendMail.settings", _criar_mock_settings(arquivo_template)
+        ):
             mensagem = buildMail(
                 to="destino@teste.com", name="Carlos", path=arquivo_template
             )
@@ -111,8 +121,10 @@ class TestSendMail:
         mock_smtp.__enter__ = MagicMock(return_value=mock_smtp)
         mock_smtp.__exit__ = MagicMock(return_value=False)
 
-        with patch("src.services.sendMail.settings", mock_settings), \
-             patch("src.services.sendMail.SMTP_SSL", return_value=mock_smtp):
+        with (
+            patch("src.services.sendMail.settings", mock_settings),
+            patch("src.services.sendMail.SMTP_SSL", return_value=mock_smtp),
+        ):
             sendMail(to="destino@teste.com", name="Usuário")
 
         mock_smtp.send_message.assert_called_once()
@@ -125,8 +137,10 @@ class TestSendMail:
         mock_smtp.__enter__ = MagicMock(side_effect=SMTPConnectError(421, b"falha"))
         mock_smtp.__exit__ = MagicMock(return_value=False)
 
-        with patch("src.services.sendMail.settings", mock_settings), \
-             patch("src.services.sendMail.SMTP_SSL", return_value=mock_smtp):
+        with (
+            patch("src.services.sendMail.settings", mock_settings),
+            patch("src.services.sendMail.SMTP_SSL", return_value=mock_smtp),
+        ):
             with pytest.raises(HTTPException) as exc_info:
                 sendMail(to="destino@teste.com", name="Usuário")
 
@@ -143,13 +157,18 @@ class TestSendMail:
         )
         mock_smtp.__exit__ = MagicMock(return_value=False)
 
-        with patch("src.services.sendMail.settings", mock_settings), \
-             patch("src.services.sendMail.SMTP_SSL", return_value=mock_smtp):
+        with (
+            patch("src.services.sendMail.settings", mock_settings),
+            patch("src.services.sendMail.SMTP_SSL", return_value=mock_smtp),
+        ):
             with pytest.raises(HTTPException) as exc_info:
                 sendMail(to="destino@teste.com", name="Usuário")
 
         assert exc_info.value.status_code == 500
-        assert "autenticação" in exc_info.value.detail.lower() or "smtp" in exc_info.value.detail.lower()
+        assert (
+            "autenticação" in exc_info.value.detail.lower()
+            or "smtp" in exc_info.value.detail.lower()
+        )
 
     def test_template_com_variavel_invalida_levanta_key_error(self, tmp_path):
         # buildMail é chamado ANTES do bloco try/except do SMTP em sendMail,
@@ -173,8 +192,10 @@ class TestSendMail:
         mock_smtp.__enter__ = MagicMock(return_value=mock_smtp)
         mock_smtp.__exit__ = MagicMock(return_value=False)
 
-        with patch("src.services.sendMail.settings", mock_settings), \
-             patch("src.services.sendMail.SMTP_SSL", return_value=mock_smtp):
+        with (
+            patch("src.services.sendMail.settings", mock_settings),
+            patch("src.services.sendMail.SMTP_SSL", return_value=mock_smtp),
+        ):
             sendMail(to="destino@teste.com", name="Usuário")
 
         mock_settings.path_validator.assert_called_once()

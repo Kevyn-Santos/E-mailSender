@@ -14,6 +14,7 @@ os.environ.setdefault("DB_PATH", _db_temp.name)
 
 _TEMPLATE_CONTEUDO = "Olá {usuario}, seu e-mail é {email}."
 
+
 # Arquivo de template temporário reutilizado em toda a sessão
 @pytest.fixture(scope="session")
 def arquivo_template():
