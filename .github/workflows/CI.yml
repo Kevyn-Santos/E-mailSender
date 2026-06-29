@@ -52,5 +52,3 @@ jobs:
           key: pip-${{ hashFiles('requirements.txt') }}
       
       - run: pytest -v
-      
-      
