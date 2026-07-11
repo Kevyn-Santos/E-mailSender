@@ -17,6 +17,7 @@ temp.py
 *.db
 *.git
 *.md
+.coverage
 
 # Cache Python / pytest
 __pycache__/

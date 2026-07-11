@@ -57,7 +57,7 @@ class Settings(BaseSettings):
 
     def path_validator(self):
 
-        if self.MSG_PATH == None:
+        if self.MSG_PATH is None:
             raise HTTPException(status_code=500, detail="MSG_PATH não definido")
 
         filePath = self.MSG_PATH
@@ -70,6 +70,6 @@ class Settings(BaseSettings):
 
     PROJECT_NAME: str = "FastAPI E-mail Sender"
     DESCRIPTION: str = "A modular FastAPI program to send e-mails with smtp protocol"
-
+    DEBUG = True
 
 settings = Settings()  # type: ignore
