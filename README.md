@@ -1,3 +1,5 @@
+[![Integration and testing](https://github.com/Kevyn-Santos/E-mailSender/actions/workflows/CI.yml/badge.svg)](https://github.com/Kevyn-Santos/E-mailSender/actions/workflows/CI.yml)
+
 # FastAPI E-mail Sender
 
 Serviço REST modular desenvolvido em Python com FastAPI para envio de e-mails padronizados via SMTP-SSL. A arquitetura permite que a mesma imagem Docker seja executada como múltiplos contêineres independentes, cada um responsável por um tipo de comunicação diferente (boas-vindas, promoção, redefinição de senha, entre outros), sem qualquer alteração no código-fonte — toda a configuração é feita exclusivamente através de variáveis de ambiente.
