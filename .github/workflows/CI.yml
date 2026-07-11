@@ -40,7 +40,13 @@ jobs:
         with:
           python-version: 3.12
           cache: pip
-
+      
+      - name: Cache
+        uses: actions/cache@v4
+        with:
+            path: ~/.cache/pip
+            key: pip-${{ hashFiles('requirements.txt') }}
+        
       - name: Instalar Dependencias
         run: |
           pip install --no-cache-dir --upgrade pip
@@ -48,9 +54,9 @@ jobs:
       
       - name: Execução de Testes
         run: |
-          pytest -v
-          --cov=src
-          --cov-report=term
+          pytest -v \
+          --cov=src \
+          --cov-report=term \
           --cov-fail-under=70
           
   buildDockerImage:
