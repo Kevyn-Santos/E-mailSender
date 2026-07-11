@@ -70,6 +70,6 @@ class Settings(BaseSettings):
 
     PROJECT_NAME: str = "FastAPI E-mail Sender"
     DESCRIPTION: str = "A modular FastAPI program to send e-mails with smtp protocol"
-    DEBUG = True
+    DEBUG: bool = True
 
 settings = Settings()  # type: ignore
