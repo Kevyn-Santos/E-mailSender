@@ -21,8 +21,8 @@ jobs:
     name: Validação de código e ortográfia
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
         with:
           python-version: 3.12
 
@@ -35,15 +35,17 @@ jobs:
     timeout-minutes: 3
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
         with:
           python-version: 3.12
+          cache: pip
+          cache-dependecy-path: requirements.txt
         
       - name: Instalar Dependencias
         run: |
-          pip install --no-cache-dir --upgrade pip
-          pip install --no-cache-dir -r requirements.txt 
+          pip install --upgrade pip
+          pip install -r requirements.txt 
       
       - name: Execução de Testes
         run: |
@@ -52,32 +54,43 @@ jobs:
           --cov-report=term \
           --cov-fail-under=70
           
-  #buildDockerImage:
-  #      runs-on: ubuntu-latest
-  #      timeout-minutes: 5
-  #      needs: tests
-  #      steps:
-  #          - uses: actions/checkout@v4
-#
-  #          - name: Extrair metadados de imagem Docker
-  #            id: meta
-  #            uses: docker/metadata-action@v6
-  #            with:
-  #              images: ${{secrets.DOCKER_USERNAME}}/cloudinary_api
-  #          
-  #          - name: Login Docker
-  #            if: github.event != 'pull_request'
-  #            uses: docker/login-action@v4
-  #            with:
-  #              username: ${{secrets.DOCKER_USERNAME}}
-  #              password: ${{secrets.DOCKER_PASSWORD}}
-  #          
-  #          - name: Build e Push Docker
-  #            uses: docker/build-push-action@v7
-  #            with:
-  #              context: .
-  #              push: ${{github.event_name != 'pull_request'}}
-  #              tags: ${{steps.meta.outputs.tags}}
-  #              annotations: ${{steps.meta.outputs.annotations}}
-  #              provenance: true
-  #              sbom: true
+  buildDockerImage:
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+        needs: tests
+        steps:
+            - uses: actions/checkout@v7
+
+            - name: Extrair metadados de imagem Docker
+              id: meta
+              uses: docker/metadata-action@v6
+              with:
+                images: ${{secrets.DOCKER_USERNAME}}/cloudinary_api
+                tags: |
+                  type=semver,pattern={{version}}
+                  type=semver,pattern={{major}}.{{minor}}
+                  type=sha
+                  type=raw,value=latest,enable={{is_default_branch}}
+                  
+            - name: Login Docker
+              if: github.event != 'pull_request'
+              uses: docker/login-action@v4
+              with:
+                username: ${{secrets.DOCKER_USERNAME}}
+                password: ${{secrets.DOCKER_PASSWORD}}
+            
+            - name: Setup buildx
+              uses: docker/setup-buildx-action@v4
+            
+            - name: Build e Push Docker
+              uses: docker/build-push-action@v7
+              with:
+                context: .
+                push: ${{github.event_name != 'pull_request'}}
+                tags: ${{steps.meta.outputs.tags}}
+                labels: ${{ steps.meta.outputs.labels }}
+                annotations: ${{steps.meta.outputs.annotations}}
+                cache-from: type=gha
+                cache-to: type=gha
+                provenance: true
+                sbom: true
