@@ -16,7 +16,6 @@ Serviço REST modular desenvolvido em Python com FastAPI para envio de e-mails p
 | Validação            | Pydantic 2.12 / Pydantic Settings 2.13       |
 | Validação de e-mail  | email-validator 2.3.0                        |
 | Envio de e-mail      | smtplib (stdlib) + email.mime (stdlib)       |
-| Autenticação         | API Key com armazenamento em SQLite (stdlib) |
 | Rate Limiting        | slowapi 0.1.9 (Sliding Window)               |
 | Containerização      | Docker / Docker Compose                      |
 | Testes               | pytest 9.0.3                                 |
@@ -39,7 +38,7 @@ Email_Sender/
 ├── src/
 │   ├── core/
 │   │   ├── settings.py      # Carregamento e validação das variáveis de ambiente via Pydantic Settings
-│   │   └── security.py      # Gerenciamento de chaves de API (SQLite), rate limiter e bloqueio de IP
+│   │   └── security.py      # Rate limiter e bloqueio de IP
 │   │
 │   ├── models/
 │   │   └── emailModules.py  # Modelo de entrada da requisição (baseUser) com sanitização de nome
@@ -55,7 +54,6 @@ Email_Sender/
 │   └── mensagem.txt         # Template de e-mail
 │
 └── scripts/
-    ├── create_key.py        # Utilitário para gerar e registrar chaves de API no banco
     └── tests/               # Testes unitários e funcionais (pytest)
 ```
 
@@ -79,7 +77,6 @@ Requisição HTTP POST /sendMail
         v
    routes/Sender.py — email_sender()
         |  Valida o corpo da requisição com o modelo baseUser
-        |  Verifica a chave de API via verify_header_key() (Depends)
         |  Agenda o envio como BackgroundTask
         |
         v
@@ -109,7 +106,6 @@ Requisição HTTP POST /sendMail
 | `PASS`     | Senha de aplicativo do provedor de e-mail (não a senha da conta)                                           |
 | `MSG_PATH` | Caminho completo para o arquivo de template dentro do contêiner (ex: `/app/Assets/mensagem.txt`)           |
 | `SUBJECT`  | Assunto do e-mail                                                                                          |
-| `API_KEY`  | Chave de API para autenticação do serviço. Deve corresponder a uma chave previamente gerada e armazenada no banco de dados. |
 
 ### Opcionais
 
@@ -125,15 +121,7 @@ Requisição HTTP POST /sendMail
 
 ---
 
-## Autenticação e Rate Limiting
-
-### Chave de API
-
-O endpoint `/sendMail` exige uma chave de API válida configurada na variável de ambiente `API_KEY`. A chave é verificada contra um banco SQLite (`key.db`) gerenciado pela classe `ApiKey` em `src/core/security.py`.
-
-As chaves são armazenadas em formato SHA-256 e gerenciadas através do script `scripts/create_key.py`.
-
-### Rate Limiting
+## Rate Limiting
 
 O serviço implementa um rate limiter por IP com estratégia de **Sliding Window** via `slowapi`. O comportamento é configurável pelas variáveis `QTD_EMAILS`, `TMP_EMAILS` e `TMP_BLOQ`:
 
@@ -205,8 +193,6 @@ Envia um e-mail ao destinatário informado utilizando o template configurado no 
 }
 ```
 
-**Resposta de erro — HTTP 401:** Chave de API inválida ou ausente.
-
 **Resposta de erro — HTTP 429:** Limite de requisições excedido ou IP bloqueado.
 
 **Resposta de erro — HTTP 500:** Caminho do template inválido ou erro no envio SMTP.
@@ -231,7 +217,6 @@ PORT_SMTP=465
 MSG_PATH=Assets/mensagem.txt
 SUBJECT=Bem-vindo ao serviço
 HOSTS=http://meusite.com
-API_KEY=sua_chave_de_api
 ```
 
 Instale as dependências e inicie o servidor:
@@ -262,9 +247,7 @@ docker run -d \
   -e PORT_SMTP=465 \
   -e MSG_PATH=/app/Assets/mensagem.txt \
   -e SUBJECT="Cadastro realizado com sucesso" \
-  -e API_KEY=sua_chave_de_api \
   -v ./Assets:/app/Assets \
-  -v api_keys:/app/data \
   -p 8000:8000 \
   kevynsantos/email_api:V4
 ```
@@ -273,7 +256,7 @@ docker run -d \
 
 ### Docker Compose
 
-A configuração recomendada para produção executa múltiplos contêineres a partir da mesma imagem, cada um com seu próprio template, assunto e banco de chaves isolado:
+A configuração recomendada para produção executa múltiplos contêineres a partir da mesma imagem, cada um com seu próprio template e assunto:
 
 ```yaml
 version: '3.8'
@@ -288,10 +271,8 @@ services:
     environment:
       MSG_PATH: /app/Assets/mensagem.txt
       SUBJECT: ${SUBJECT_CADASTRO}
-      API_KEY: ${API_KEY_CADASTRO}
     volumes:
       - ./Assets:/app/Assets
-      - api_keys_cadastro:/app/data
     ports:
       - "8000:8000"
     restart: unless-stopped
@@ -305,10 +286,8 @@ services:
     environment:
       MSG_PATH: ${MSG_PATH_PROMO:-/app/Assets/mensagem.txt}
       SUBJECT: ${SUBJECT_PROMO}
-      API_KEY: ${API_KEY_PROMO}
     volumes:
       - ./Assets:/app/Assets
-      - api_keys_promo:/app/data
     ports:
       - "8001:8000"
     restart: unless-stopped
@@ -322,88 +301,16 @@ services:
     environment:
       MSG_PATH: ${MSG_PATH_RESET:-/app/Assets/Reset.txt}
       SUBJECT: ${SUBJECT_RESET}
-      API_KEY: ${API_KEY_RESET}
     volumes:
       - ./Assets:/app/Assets
-      - api_keys_reset:/app/data
     ports:
       - "8002:8000"
     restart: unless-stopped
-
-volumes:
-  api_keys_cadastro:
-  api_keys_promo:
-  api_keys_reset:
 ```
 
 ---
 
-## Configuração Inicial — Geração de Chaves de API
-
-As chaves de API são armazenadas em um banco SQLite dentro de cada volume Docker. Na primeira execução, é necessário gerar e registrar as chaves:
-
-### Passo 1: Subir os contêineres
-
-```bash
-docker-compose up -d
-```
-
-Os volumes nomeados são criados automaticamente pelo Docker.
-
-### Passo 2: Gerar chaves para cada serviço
-
-Para cada serviço, execute o script de geração de chaves dentro do contêiner:
-
-```bash
-# Serviço Cadastro
-docker exec -it email-cadastro python scripts/create_key.py
-
-# Serviço Promo
-docker exec -it email-promo python scripts/create_key.py
-
-# Serviço Reset
-docker exec -it email-reset python scripts/create_key.py
-```
-
-Cada execução imprime 11 chaves no formato:
-
-```
-0: Chave gerada: AbCd1234_Ef5Gh67ijKlMnOpQrStUvWxYz
-Guarde esta chave — o hash é armazenado, a chave original não pode ser recuperada.
-
-1: Chave gerada: XyZ9876_wVuTsRqPonMlKjIhGfEdCbA...
-...
-```
-
-### Passo 3: Configurar as variáveis de ambiente
-
-Copie uma das chaves geradas e adicione ao arquivo `.env`:
-
-```env
-API_KEY_CADASTRO=AbCd1234_Ef5Gh67ijKlMnOpQrStUvWxYz
-API_KEY_PROMO=XyZ9876_wVuTsRqPonMlKjIhGfEdCbA
-API_KEY_RESET=AaBbCcDd1234_EeFfGgHhIiJjKkLlMm
-```
-
-### Passo 4: Reiniciar os contêineres
-
-```bash
-docker-compose restart
-```
-
-Os serviços agora validarão as chaves contra o banco de dados e estarão prontos para aceitar requisições.
-
-### Passo 5: Verificar status
-
-```bash
-curl http://localhost:8000/health
-curl http://localhost:8001/health
-curl http://localhost:8002/health
-```
-
----
-
-### Operações com Volumes
+### Operações
 
 **Iniciar todos os serviços:**
 
@@ -417,16 +324,18 @@ docker-compose up -d
 docker-compose up cadastro
 ```
 
-**Encerrar todos os serviços (mantendo volumes):**
+**Verificar status:**
+
+```bash
+curl http://localhost:8000/health
+curl http://localhost:8001/health
+curl http://localhost:8002/health
+```
+
+**Encerrar todos os serviços:**
 
 ```bash
 docker-compose down
-```
-
-**Encerrar todos os serviços e remover volumes (apaga chaves armazenadas):**
-
-```bash
-docker-compose down -v
 ```
 
 ---
