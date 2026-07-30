@@ -65,14 +65,9 @@ Email_Sender/
 Requisição HTTP POST /sendMail
         |
         v
-   Main.py — Middleware block_banned_ips
-        |  Verifica se o IP do cliente está na lista de bloqueados
-        |  Retorna HTTP 429 com tempo restante caso bloqueado
-        |
-        v
    slowapi — Rate Limiter (Sliding Window)
         |  Verifica QTD_EMAILS requisições dentro de TMP_EMAILS segundos
-        |  Se exceder: bloqueia o IP por TMP_BLOQ segundos → HTTP 429
+        |  Se exceder: HTTP 429, liberado assim que a janela desliza
         |
         v
    routes/Sender.py — email_sender()
@@ -117,17 +112,16 @@ Requisição HTTP POST /sendMail
 | `EHELO`       | `localhost`          | Hostname enviado no handshake EHELO com o servidor SMTP             |
 | `QTD_EMAILS`  | `10`                 | Número máximo de requisições permitidas por janela de tempo         |
 | `TMP_EMAILS`  | `60`                 | Duração da janela de rate limiting em segundos                      |
-| `TMP_BLOQ`    | `30`                 | Tempo de bloqueio do IP após exceder o limite (segundos)            |
 
 ---
 
 ## Rate Limiting
 
-O serviço implementa um rate limiter por IP com estratégia de **Sliding Window** via `slowapi`. O comportamento é configurável pelas variáveis `QTD_EMAILS`, `TMP_EMAILS` e `TMP_BLOQ`:
+O serviço implementa um rate limiter por IP com estratégia de **Sliding Window (moving-window)**, delegada inteiramente à biblioteca `slowapi`. O comportamento é configurável pelas variáveis `QTD_EMAILS` e `TMP_EMAILS`:
 
-- Ao exceder o limite, o IP é bloqueado temporariamente e recebe `HTTP 429`.
-- O desbloqueio ocorre automaticamente após `TMP_BLOQ` segundos.
-- O middleware `block_banned_ips` em `Main.py` intercepta todas as requisições de IPs bloqueados antes mesmo de chegarem ao endpoint.
+- Ao exceder `QTD_EMAILS` requisições dentro de `TMP_EMAILS` segundos, o IP recebe `HTTP 429`.
+- Não há bloqueio fixo adicional: a liberação ocorre organicamente conforme a janela desliza e requisições antigas saem da contagem.
+- A contagem é mantida em memória por padrão (`RATE_LIMIT_STORAGE_URI="memory://"`), não persistindo entre reinícios nem sendo compartilhada entre réplicas. Para isso, o `Limiter` já aceita um `storage_uri` externo (ex.: Redis), a ser configurado quando esse backend for provisionado.
 
 ---
 
@@ -193,7 +187,7 @@ Envia um e-mail ao destinatário informado utilizando o template configurado no 
 }
 ```
 
-**Resposta de erro — HTTP 429:** Limite de requisições excedido ou IP bloqueado.
+**Resposta de erro — HTTP 429:** Limite de requisições excedido.
 
 **Resposta de erro — HTTP 500:** Caminho do template inválido ou erro no envio SMTP.
 
