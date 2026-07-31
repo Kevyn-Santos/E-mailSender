@@ -13,4 +13,4 @@ async def email_sender(
     background: BackgroundTasks,
     request: Request,
 ):
-    background.add_task(sendMail, to=User.userMail, name=User.userName)
+    background.add_task(sendMail, to=User.userMail, name=User.SanitizeName())

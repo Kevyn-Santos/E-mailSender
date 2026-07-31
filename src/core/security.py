@@ -28,7 +28,7 @@ class Ratelimiter:
         strategy="moving-window",
         storage_uri=settings.RATE_LIMIT_STORAGE_URI,
     )
-
+    
     def get_rate_limit_string(self) -> str:
         return f"{settings.QTD_EMAILS}/{settings.TMP_EMAILS} seconds"
 

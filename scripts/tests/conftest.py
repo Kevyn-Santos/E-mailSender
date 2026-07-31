@@ -1,6 +1,12 @@
 import os
 import tempfile
+from pathlib import Path
+
 import pytest
+from dotenv import load_dotenv
+
+# Carrega variáveis de teste antes de qualquer import de src.core.settings
+load_dotenv(Path(__file__).resolve().parents[2] / "tests.env", override=True)
 
 _TEMPLATE_CONTEUDO = "Olá {usuario}, seu e-mail é {email}."
 
