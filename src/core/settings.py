@@ -38,9 +38,6 @@ class Settings(BaseSettings):
     def sanatize_cors(self) -> list[str]:
         return [str(origins) for origins in self.HOSTS] + self.COMMONS_URLS  # type: ignore
 
-    DB_PATH: Path = Path("/app/data/key.db")
-    API_KEY: str = ""
-
     SENDER: EmailStr | None = None
     PASS: str | None = None
     SMTP_SERVER: str | str = "smtp.gmail.com"
@@ -53,7 +50,12 @@ class Settings(BaseSettings):
 
     QTD_EMAILS: int = 10
     TMP_EMAILS: int = 60
-    TMP_BLOQ: int = 30
+
+    # Backend de armazenamento do rate limiter (slowapi/limits).
+    # "memory://" mantém a contagem só em processo (padrão atual).
+    # Para persistir entre deploys/réplicas, trocar por algo como
+    # "redis://redis:6379/0" quando o serviço Redis for provisionado.
+    RATE_LIMIT_STORAGE_URI: str = "memory://"
 
     def path_validator(self):
 

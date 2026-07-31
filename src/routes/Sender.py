@@ -1,5 +1,5 @@
-from fastapi import APIRouter, BackgroundTasks, Request, Depends
-from src.core.security import Rate_limiter, verify_key
+from fastapi import APIRouter, BackgroundTasks, Request
+from src.core.security import Rate_limiter
 from src.models.emailModules import baseUser
 from src.services.sendMail import sendMail
 
@@ -12,6 +12,5 @@ async def email_sender(
     User: baseUser,
     background: BackgroundTasks,
     request: Request,
-    _: str = Depends(verify_key),
 ):
     background.add_task(sendMail, to=User.userMail, name=User.SanitizeName())
