@@ -11,7 +11,7 @@ _SETTINGS_FAKE = {
     "SENDER": os.getenv("SENDER"),
     "SUBJECT": os.getenv("SUBJECT"),
     "SMTP_SERVER": os.getenv("SMTP_SERVER"),
-    "PORT_SMTP": int(os.getenv("PORT_SMTP")), #type: ignore
+    "PORT_SMTP": int(os.getenv("PORT_SMTP", "465")),
     "EHELO": os.getenv("EHELO"),
     "PASS": os.getenv("PASS"),
 }
