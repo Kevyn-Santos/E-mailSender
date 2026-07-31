@@ -1,3 +1,4 @@
+import os
 import pytest
 from unittest.mock import patch, MagicMock
 from smtplib import SMTPConnectError, SMTPAuthenticationError
@@ -5,14 +6,14 @@ from email.mime.multipart import MIMEMultipart
 from fastapi import HTTPException
 
 
-# Configurações simuladas injetadas nos módulos de serviço
+# Configurações simuladas injetadas nos módulos de serviço, vindas de tests.env
 _SETTINGS_FAKE = {
-    "SENDER": "remetente@teste.com",
-    "SUBJECT": "Assunto de Teste",
-    "SMTP_SERVER": "smtp.fake.com",
-    "PORT_SMTP": 465,
-    "EHELO": "localhost",
-    "PASS": "senha-falsa",
+    "SENDER": os.getenv("SENDER"),
+    "SUBJECT": os.getenv("SUBJECT"),
+    "SMTP_SERVER": os.getenv("SMTP_SERVER"),
+    "PORT_SMTP": int(os.getenv("PORT_SMTP")), #type: ignore
+    "EHELO": os.getenv("EHELO"),
+    "PASS": os.getenv("PASS"),
 }
 
 
@@ -82,7 +83,7 @@ class TestBuildMail:
             mensagem = buildMail(
                 to="destino@teste.com", name="Carlos", path=arquivo_template
             )
-        payload = mensagem.get_payload(0).get_payload(decode=True).decode("utf-8")
+        payload = mensagem.get_payload(0).get_payload(decode=True).decode("utf-8") # type: ignore
         assert "Carlos" in payload
         assert "destino@teste.com" in payload
 
@@ -170,9 +171,9 @@ class TestSendMail:
             or "smtp" in exc_info.value.detail.lower()
         )
 
-    def test_template_com_variavel_invalida_levanta_key_error(self, tmp_path):
-        # buildMail é chamado ANTES do bloco try/except do SMTP em sendMail,
-        # portanto o KeyError de template inválido propaga sem ser convertido em HTTPException.
+    def test_template_com_variavel_invalida_levanta_http_500(self, tmp_path):
+        # buildMail roda dentro do try/except do SMTP em sendMail,
+        # então o KeyError de template inválido vira HTTPException 500.
         from src.services.sendMail import sendMail
 
         template_invalido = tmp_path / "invalido.txt"
@@ -181,8 +182,11 @@ class TestSendMail:
         mock_settings = _criar_mock_settings(str(template_invalido))
 
         with patch("src.services.sendMail.settings", mock_settings):
-            with pytest.raises(KeyError):
+            with pytest.raises(HTTPException) as exc_info:
                 sendMail(to="destino@teste.com", name="Usuário")
+
+        assert exc_info.value.status_code == 500
+        assert "variavel_inexistente" in exc_info.value.detail
 
     def test_path_validator_e_chamado(self, arquivo_template):
         from src.services.sendMail import sendMail

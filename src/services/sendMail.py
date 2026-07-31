@@ -19,9 +19,9 @@ def buildMail(to: str, name: str, path) -> MIMEMultipart:
 
 def sendMail(to: str, name: str):
     filepath = settings.path_validator()
-    msg = buildMail(to, name, filepath)
 
     try:
+        msg = buildMail(to, name, filepath)
         with SMTP_SSL(host=settings.SMTP_SERVER, port=settings.PORT_SMTP) as sender:
             sender.ehlo(settings.EHELO)
             sender.login(settings.SENDER, settings.PASS)  # type: ignore

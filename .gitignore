@@ -32,4 +32,5 @@ script.sh
 
 # Environment
 .env
+tests.env
 src/core/key.db
