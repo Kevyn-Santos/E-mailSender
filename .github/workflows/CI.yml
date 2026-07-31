@@ -10,9 +10,12 @@ run-name: Integration and testing
 
 on:
   push:
+    tags: ["v*.*.*"]
     branches: [master]
   pull_request:
     branches: [master]
+  release:
+    types: [published]
 
 jobs:
   
@@ -40,7 +43,7 @@ jobs:
         with:
           python-version: 3.12
           cache: pip
-          cache-dependecy-path: requirements.txt
+          cache-dependency-path: requirements.txt
         
       - name: Instalar Dependencias
         run: |
@@ -65,7 +68,7 @@ jobs:
               id: meta
               uses: docker/metadata-action@v6
               with:
-                images: ${{secrets.DOCKER_USERNAME}}/cloudinary_api
+                images: ${{secrets.DOCKER_USERNAME}}/email_api
                 tags: |
                   type=semver,pattern={{version}}
                   type=semver,pattern={{major}}.{{minor}}
@@ -73,7 +76,7 @@ jobs:
                   type=raw,value=latest,enable={{is_default_branch}}
                   
             - name: Login Docker
-              if: github.event != 'pull_request'
+              if: github.event_name != 'pull_request'
               uses: docker/login-action@v4
               with:
                 username: ${{secrets.DOCKER_USERNAME}}

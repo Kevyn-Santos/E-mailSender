@@ -8,10 +8,12 @@
 .venv1/
 .vscode/
 Assets/
+.agents
 docker-compose.yml
 keys.txt
 misc
 temp.py
+skills-lock.json
 
 # Wildcards
 *.db
