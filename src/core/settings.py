@@ -1,8 +1,9 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import EmailStr, AnyUrl, BeforeValidator, computed_field
-from fastapi import HTTPException
-from typing import Annotated, Any
 from pathlib import Path
+from typing import Annotated, Any
+
+from fastapi import HTTPException
+from pydantic import AnyUrl, BeforeValidator, EmailStr, computed_field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 # limpa os IP's que virão de CORS

@@ -1,10 +1,10 @@
 import os
-import pytest
-from unittest.mock import patch, MagicMock
-from smtplib import SMTPConnectError, SMTPAuthenticationError
 from email.mime.multipart import MIMEMultipart
-from fastapi import HTTPException
+from smtplib import SMTPAuthenticationError, SMTPConnectError
+from unittest.mock import MagicMock, patch
 
+import pytest
+from fastapi import HTTPException
 
 # Configurações simuladas injetadas nos módulos de serviço, vindas de tests.env
 _SETTINGS_FAKE = {

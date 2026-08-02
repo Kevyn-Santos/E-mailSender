@@ -4,10 +4,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi.errors import RateLimitExceeded
 
-from src.core.settings import settings
 from src.core.security import Rate_limiter
-from src.routes import Sender
-from src.routes import Health
+from src.core.settings import settings
+from src.routes import Health, Sender
 
 # Carregamento de configurações básicas
 app = FastAPI(title=settings.PROJECT_NAME, description=settings.DESCRIPTION)

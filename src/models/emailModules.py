@@ -1,5 +1,6 @@
-from pydantic import BaseModel, EmailStr
 import re
+
+from pydantic import BaseModel, EmailStr
 
 
 class baseUser(BaseModel):
