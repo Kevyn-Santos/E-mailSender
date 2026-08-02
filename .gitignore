@@ -33,5 +33,8 @@ script.sh
 # Environment
 .env
 .env.local
+.env.backup
 tests.env
 src/core/key.db
+.vercel
+.env*
