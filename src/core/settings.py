@@ -44,9 +44,7 @@ class Settings(BaseSettings):
     SMTP_SERVER: str | str = "smtp.gmail.com"
     PORT_SMTP: int = 465
     EHELO: str | str = "localhost"
-    MSG_PATH: Path = Path(
-        "/home/kevyn/PycharmProjects/Email_Sender/Assets/mensagem.txt"
-    )
+    MSG_PATH: Path = Path(__file__).resolve().parent.parent.parent / "Assets" / "mensagem.txt"
     SUBJECT: str | str = ""
 
     QTD_EMAILS: int = 10
