@@ -38,3 +38,6 @@ tests.env
 src/core/key.db
 .vercel
 .env*
+
+# Exceptions
+!Assets/mensagem.txt
