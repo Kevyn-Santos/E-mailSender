@@ -1,4 +1,6 @@
 from fastapi import APIRouter, BackgroundTasks, Request
+
+from src.core.mail_config import resolve_mail_config
 from src.core.security import Rate_limiter
 from src.models.emailModules import baseUser
 from src.services.sendMail import sendMail
@@ -13,4 +15,10 @@ async def email_sender(
     background: BackgroundTasks,
     request: Request,
 ):
-    background.add_task(sendMail, to=User.userMail, name=User.SanitizeName())
+    resolved_config = resolve_mail_config(User.config)
+    background.add_task(
+        sendMail,
+        to=User.userMail,
+        name=User.SanitizeName(),
+        config=resolved_config,
+    )

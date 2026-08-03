@@ -1,6 +1,7 @@
 import pytest
 from pydantic import ValidationError
-from src.models.emailModules import baseUser
+
+from src.models.emailModules import MailConfig, baseUser
 
 
 class TestBaseUserValidacao:
@@ -20,6 +21,31 @@ class TestBaseUserValidacao:
     def test_username_aceita_string_qualquer(self):
         usuario = baseUser(userMail="a@b.com", userName="123!@#")
         assert usuario.userName == "123!@#"
+
+    def test_config_e_opcional_e_default_none(self):
+        usuario = baseUser(userMail="a@b.com", userName="João")
+        assert usuario.config is None
+
+    def test_config_aceita_campos_parciais(self):
+        usuario = baseUser(
+            userMail="a@b.com",
+            userName="João",
+            config={"sender": "dev@exemplo.com", "subject": "Assunto"},
+        )
+        assert usuario.config.sender == "dev@exemplo.com"
+        assert usuario.config.subject == "Assunto"
+        assert usuario.config.password is None
+
+
+class TestMailConfig:
+    def test_todos_os_campos_sao_opcionais(self):
+        config = MailConfig()
+        assert config.sender is None
+        assert config.template is None
+
+    def test_email_invalido_no_sender_levanta_validation_error(self):
+        with pytest.raises(ValidationError):
+            MailConfig(sender="nao-e-email")
 
 
 class TestSanitizeName:

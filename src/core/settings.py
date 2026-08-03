@@ -1,8 +1,9 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import EmailStr, AnyUrl, BeforeValidator, computed_field
-from fastapi import HTTPException
-from typing import Annotated, Any
 from pathlib import Path
+from typing import Annotated, Any
+
+from fastapi import HTTPException
+from pydantic import AnyUrl, BeforeValidator, EmailStr, computed_field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 # limpa os IP's que virão de CORS
@@ -43,9 +44,7 @@ class Settings(BaseSettings):
     SMTP_SERVER: str | str = "smtp.gmail.com"
     PORT_SMTP: int = 465
     EHELO: str | str = "localhost"
-    MSG_PATH: Path = Path(
-        "/home/kevyn/PycharmProjects/Email_Sender/Assets/mensagem.txt"
-    )
+    MSG_PATH: Path = Path(__file__).resolve().parent.parent.parent / "Assets" / "mensagem.txt"
     SUBJECT: str | str = ""
 
     QTD_EMAILS: int = 10

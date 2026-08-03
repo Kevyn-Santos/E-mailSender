@@ -7,7 +7,6 @@
 .venv/
 .venv1/
 .vscode/
-Assets/
 .agents
 docker-compose.yml
 keys.txt
@@ -32,5 +31,9 @@ script.sh
 
 # Environment
 .env
+.env.local
+.env.backup
 tests.env
 src/core/key.db
+.vercel
+.env*
