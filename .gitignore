@@ -7,7 +7,6 @@
 .venv/
 .venv1/
 .vscode/
-Assets/
 .agents
 docker-compose.yml
 keys.txt

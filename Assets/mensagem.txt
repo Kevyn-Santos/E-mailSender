@@ -1,0 +1,7 @@
+Olá, {usuario}! 👋
+Seja muito bem-vindo(a) ao nosso serviço!
+
+Estamos felizes em ter você com a gente. Seu cadastro foi realizado com sucesso usando o e-mail {email}.
+A partir de agora, você pode aproveitar todos os recursos e novidades que preparamos para facilitar sua experiência!
+
+Se precisar de ajuda, conte conosco. Aproveite! 🚀
