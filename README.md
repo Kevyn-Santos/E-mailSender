@@ -197,6 +197,74 @@ A documentação interativa gerada automaticamente pelo FastAPI está disponíve
 
 ---
 
+## Importação da API (SDK Python)
+
+Além do consumo via HTTP puro, o projeto disponibiliza um SDK Python — pacote `email_sender_sdk`, em `sdk/` — para importar a API como biblioteca em vez de montar requisições manualmente.
+
+**Instalação:**
+
+```bash
+pip install -e sdk/
+```
+
+**Exemplo de uso:**
+
+```python
+from email_sender_sdk import EmailSenderClient
+
+client = EmailSenderClient(
+    base_url="https://emailsender.vercel.app",
+    sender="meuapp@gmail.com",
+    password="senha-de-app",
+    subject="Bem-vindo!",
+    template="Olá {usuario}, seu cadastro em {email} foi confirmado.",
+)
+client.send(user_mail="cliente@exemplo.com", user_name="Cliente Exemplo")
+```
+
+### `EmailSenderClient`
+
+Classe cliente que guarda a configuração de envio (remetente, senha, servidor SMTP, template etc.) localmente e monta automaticamente o payload do `POST /sendMail`, incluindo o bloco `config` quando algum campo é informado.
+
+**Parâmetros do construtor:** `base_url` (obrigatório) e, opcionalmente, `sender`, `password`, `smtp_server`, `port_smtp`, `ehelo`, `subject`, `template`, `template_path`, `timeout`.
+
+### Formas de configuração
+
+**1. Construtor direto**, com os campos inline (como no exemplo acima).
+
+**2. Construtor com `template_path`** — em vez de passar `template` inline, aponte para um arquivo `.txt` local; o SDK lê o conteúdo e envia como texto no payload (o servidor nunca recebe caminhos de disco):
+
+```python
+client = EmailSenderClient(
+    base_url="https://emailsender.vercel.app",
+    sender="meuapp@gmail.com",
+    password="senha-de-app",
+    template_path="templates/boas_vindas.txt",
+)
+```
+
+**3. `EmailSenderClient.from_env(base_url, prefix="EMAIL_SENDER_")`** — lê a configuração de variáveis de ambiente do lado do dev consumidor (não confundir com o `.env` do servidor da API):
+
+```bash
+export EMAIL_SENDER_SENDER=meuapp@gmail.com
+export EMAIL_SENDER_PASSWORD=senha-de-app
+export EMAIL_SENDER_SUBJECT="Bem-vindo!"
+export EMAIL_SENDER_TEMPLATE_PATH=templates/boas_vindas.txt
+```
+
+```python
+from email_sender_sdk import EmailSenderClient
+
+client = EmailSenderClient.from_env(base_url="https://emailsender.vercel.app")
+client.send(user_mail="cliente@exemplo.com", user_name="Cliente Exemplo")
+```
+
+Em qualquer uma das formas, campos omitidos são descartados do payload e caem para o padrão configurado no servidor, seguindo a precedência **configuração do client > variável de ambiente do servidor > default do template empacotado**.
+
+> Detalhes adicionais (como os testes do SDK) estão em [`sdk/README.md`](sdk/README.md).
+
+---
+
 ## Execução
 
 ### Desenvolvimento local
