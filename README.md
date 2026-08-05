@@ -197,30 +197,7 @@ A documentação interativa gerada automaticamente pelo FastAPI está disponíve
 
 ---
 
-## Importação da API (SDK Python)
-
-Além do consumo via HTTP puro, o projeto disponibiliza um SDK Python — pacote `email_sender_sdk`, em `sdk/` — para importar a API como biblioteca em vez de montar requisições manualmente.
-
-**Instalação:**
-
-```bash
-pip install -e sdk/
-```
-
-**Exemplo de uso:**
-
-```python
-from email_sender_sdk import EmailSenderClient
-
-client = EmailSenderClient(
-    base_url="https://emailsender.vercel.app",
-    sender="meuapp@gmail.com",
-    password="senha-de-app",
-    subject="Bem-vindo!",
-    template="Olá {usuario}, seu cadastro em {email} foi confirmado.",
-)
-client.send(user_mail="cliente@exemplo.com", user_name="Cliente Exemplo")
-```
+## **Exemplo de uso:**
 
 ### `EmailSenderClient`
 
@@ -230,7 +207,18 @@ Classe cliente que guarda a configuração de envio (remetente, senha, servidor 
 
 ### Formas de configuração
 
-**1. Construtor direto**, com os campos inline (como no exemplo acima).
+**1. Construtor direto**, com os campos inline.
+
+```python
+
+client = EmailSenderClient(
+    base_url="https://emailsender.vercel.app",
+    sender="meuapp@gmail.com",
+    password="senha-de-app",
+    subject="Bem-vindo!",
+    template="Olá {usuario}, seu cadastro em {email} foi confirmado.",
+)
+```
 
 **2. Construtor com `template_path`** — em vez de passar `template` inline, aponte para um arquivo `.txt` local; o SDK lê o conteúdo e envia como texto no payload (o servidor nunca recebe caminhos de disco):
 
@@ -243,25 +231,27 @@ client = EmailSenderClient(
 )
 ```
 
-**3. `EmailSenderClient.from_env(base_url, prefix="EMAIL_SENDER_")`** — lê a configuração de variáveis de ambiente do lado do dev consumidor (não confundir com o `.env` do servidor da API):
+**3. uso de `.env`** — lê a configuração de variáveis de ambiente do lado do dev consumidor (não confundir com o `.env` do servidor da API):
 
 ```bash
-export EMAIL_SENDER_SENDER=meuapp@gmail.com
-export EMAIL_SENDER_PASSWORD=senha-de-app
-export EMAIL_SENDER_SUBJECT="Bem-vindo!"
-export EMAIL_SENDER_TEMPLATE_PATH=templates/boas_vindas.txt
+export BASE_URL="https://emailsender.vercel.app",
+export EMAIL_TIMEOUT=10,
+export SENDER=meuapp@gmail.com
+export PASSWORD=senha-de-app
+export SUBJECT="Bem-vindo!"
+export TEMPLATE_PATH=templates/boas_vindas.txt
 ```
 
 ```python
-from email_sender_sdk import EmailSenderClient
-
-client = EmailSenderClient.from_env(base_url="https://emailsender.vercel.app")
-client.send(user_mail="cliente@exemplo.com", user_name="Cliente Exemplo")
+    base_url: str = os.getenv("BASE_URL", "https://emailsender-gold.vercel.app")
+    timeout: int = int(os.getenv("EMAIL_TIMEOUT", "10"))
+    template_path: Path = BASE_DIR / os.getenv("TEMPLATE_PATH", "Assets/boas_vindas.txt")
+    subject: str = os.getenv("SUBJECT", "")
+    sender: EmailStr = os.getenv("SENDER", "")
+    password: str = os.getenv("PASSWORD", "")
 ```
 
 Em qualquer uma das formas, campos omitidos são descartados do payload e caem para o padrão configurado no servidor, seguindo a precedência **configuração do client > variável de ambiente do servidor > default do template empacotado**.
-
-> Detalhes adicionais (como os testes do SDK) estão em [`sdk/README.md`](sdk/README.md).
 
 ---
 
@@ -326,7 +316,7 @@ version: '3.8'
 services:
   cadastro:
     build: .
-    image: kevynsantos/email_api:V4
+    image: kevynsantos/email_api:latest
     container_name: email-cadastro
     env_file:
       - .env
@@ -341,7 +331,7 @@ services:
 
   promo:
     build: .
-    image: kevynsantos/email_api:V4
+    image: kevynsantos/email_api:latest
     container_name: email-promo
     env_file:
       - .env
@@ -356,7 +346,7 @@ services:
 
   reset:
     build: .
-    image: kevynsantos/email_api:V4
+    image: kevynsantos/email_api:latest
     container_name: email-reset
     env_file:
       - .env
